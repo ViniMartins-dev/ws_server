@@ -4,103 +4,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitor do Sensor ESP32</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 50px;
-        }
+    <title>Monitor de Luminosidade</title>
 
-        .valor {
-            font-size: 64px;
-            font-weight: bold;
-            margin: 30px;
-        }
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
 
-        .barra {
-            width: 300px;
-            height: 20px;
-            background-color: #ddd;
-            margin: 20px auto;
-            border-radius: 10px;
-            overflow: hidden;
-        }
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
 
-        .progresso {
-            width: 0%;
-            height: 100%;
-            background-color: #28a745;
-            transition: width 0.3s;
-        }
-    </style>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- JavaScript -->
+    <script src="js/script.js" defer></script>
 </head>
 
 <body>
 
-    <h1>Monitor do Sensor</h1>
+    <main>
 
-    <p id="status">Desconectado</p>
+        <header class="cabecalho">
+            <div>
+                <h1>Monitor de Luminosidade</h1>
+                <p>Acompanhamento em tempo real do sensor LDR.</p>
+            </div>
 
-    <div class="valor">
-        <span id="leitura">--</span>
-    </div>
+            <div class="status">
+                <div class="status-indicator" id="statusIndicator"></div>
+                <span id="statusText">Desconectado</span>
+            </div>
+        </header>
 
-    <div class="barra">
-        <div class="progresso" id="progresso"></div>
-    </div>
+        <!-- Indicadores -->
+        <section class="indicadores">
 
-    <script>
-        let ws;
+            <article class="card">
+                <div class="card-titulo">Luminosidade atual</div>
+                <div class="card-valor" id="lux">--</div>
+                <div class="card-unidade">lux</div>
+            </article>
 
-        function conectar() {
+            <article class="card">
+                <div class="card-titulo">Média de luminosidade</div>
+                <div class="card-valor" id="average">--</div>
+                <div class="card-unidade">lux · desde o início da sessão</div>
+            </article>
 
-            document.getElementById("status").textContent =
-                "Conectando...";
+            <article class="card">
+                <div class="card-titulo">Resistência do LDR</div>
+                <div class="card-valor" id="resistance">--</div>
+                <div class="card-unidade">ohms (Ω)</div>
+            </article>
 
-            // Conecta ao servidor Node.js
-            const protocolo = window.location.protocol === "https:" ? "wss:" : "ws:";
-            ws = new WebSocket(`${protocolo}//${window.location.host}`);
+            <article class="card">
+                <div class="card-titulo">Tipo de leitura</div>
+                <div class="card-valor">
+                    <span class="tipo-leitura" id="sensorType">Aguardando</span>
+                </div>
+                <div class="card-unidade">Origem dos dados recebidos</div>
+            </article>
 
-            ws.onopen = () => {
-                document.getElementById("status").textContent =
-                    "Conectado";
-            };
+        </section>
 
-            ws.onmessage = (event) => {
+        <!-- Gráfico -->
+        <section class="grafico-card">
+            <h2>Histórico de luminosidade</h2>
 
-                const valor = Number(event.data);
+            <div class="grafico-container">
+                <canvas id="graficoLux"></canvas>
+            </div>
+        </section>
 
-                if (!Number.isFinite(valor)) {
-                    return;
-                }
+        <!-- Porcentagem -->
+        <section class="barra-card">
 
-                document.getElementById("leitura").textContent =
-                    valor.toFixed(2) + " lux";
+            <div class="barra-cabecalho">
+                <h2>Porcentagem de luminosidade</h2>
+                <strong id="percentage">--%</strong>
+            </div>
 
-                const porcentagem = (valor / 763) * 100;
+            <div class="barra-fundo">
+                <div class="barra-progresso" id="progress"></div>
+            </div>
 
-                document.getElementById("progresso").style.width =
-                    Math.min(Math.max(porcentagem, 0), 100) + "%";
-            };
+            <div class="informacoes">
+                <span id="readingCount">Leituras recebidas: 0</span>
+                <span id="lastUpdate">Aguardando dados...</span>
+            </div>
 
-            ws.onerror = () => {
-                document.getElementById("status").textContent =
-                    "Erro na conexão";
-            };
+        </section>
 
-            ws.onclose = () => {
-                document.getElementById("status").textContent =
-                    "Desconectado";
-            };
-        }
+    </main>
 
-        // Conecta automaticamente ao abrir a página
-        conectar();
-
-    </script>
+    <footer>
+        <p>Monitor de Luminosidade · ESP32 e Sensor LDR</p>
+    </footer>
 
 </body>
-
 </html>
