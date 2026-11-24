@@ -160,7 +160,10 @@ function validarLeitura(dados) {
     if (
         typeof dados.lux !== 'number' ||
         typeof dados.percentage !== 'number' ||
-        typeof dados.simulated !== 'boolean'
+        typeof dados.simulated !== 'boolean' ||
+        !Number.isInteger(dados.faixa) ||
+        dados.faixa < 0 ||
+        dados.faixa > 3
     ) {
         return false;
     }
@@ -309,7 +312,8 @@ wsServer.on('connection', (cliente) => {
             lux: leitura.lux,
             resistance: leitura.resistance,
             percentage: leitura.percentage,
-            simulated: leitura.simulated
+            simulated: leitura.simulated,
+            faixa: leitura.faixa
         });
 
         wsServer.clients.forEach((destinatario) => {
